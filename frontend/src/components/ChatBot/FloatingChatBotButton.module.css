@@ -1,0 +1,51 @@
+/**
+ * Floating ChatBot Button Styles - Cyberpunk Design System
+ *
+ * Color Palette:
+ * - Background: #008080 (Teal)
+ * - Icon: #0a0a0a (Deep Void)
+ * - Glow: rgba(34, 253, 255, 0.4-0.6)
+ */
+
+.floatingButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #008080;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(34, 253, 255, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  z-index: 999;
+  color: #0a0a0a;
+}
+
+.floatingButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(34, 253, 255, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.floatingButton:active {
+  transform: scale(0.95);
+}
+
+/* Mobile responsive - adjust position for smaller screens */
+@media (max-width: 768px) {
+  .floatingButton {
+    bottom: 28px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .floatingButton svg {
+    width: 24px;
+    height: 24px;
+  }
+}

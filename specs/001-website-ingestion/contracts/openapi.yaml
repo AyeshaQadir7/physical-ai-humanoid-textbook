@@ -1,0 +1,557 @@
+openapi: 3.0.0
+info:
+  title: Website Ingestion & Vector Storage API
+  description: |
+    Backend API for ingesting textbook content, generating embeddings, and storing vectors.
+
+    **Current Status**: Spec-1 (CLI only) - FastAPI integration planned for Spec-2 (RAG Chatbot)
+
+    This document defines the API contracts for future FastAPI implementation.
+  version: "1.0.0"
+  contact:
+    name: AI Robotics Textbook Team
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.textbook.local/v1
+    description: Local development
+  - url: https://api.textbook.vercel.app/v1
+    description: Production deployment
+
+tags:
+  - name: Ingestion
+    description: Content crawling, chunking, and embedding generation
+  - name: Collections
+    description: Qdrant collection management and verification
+  - name: Search
+    description: Vector similarity search and metadata filtering
+
+paths:
+  /ingestion/run:
+    post:
+      summary: Start an ingestion pipeline run
+      description: |
+        Initiates a complete ingestion pipeline: crawl URLs → chunk text → generate embeddings → store in Qdrant.
+
+        **Workflow**:
+        1. Crawl base URL and extract all internal links
+        2. Extract clean text from each page
+        3. Split text into chunks with metadata
+        4. Generate embeddings via Cohere
+        5. Insert into Qdrant with deduplication
+        6. Verify and return report
+
+        **Idempotency**: Using checkpoint system, re-running with same parameters skips already-processed content.
+      operationId: startIngestion
+      tags:
+        - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - base_url
+              properties:
+                base_url:
+                  type: string
+                  format: uri
+                  description: Base URL of textbook (e.g., https://textbook.vercel.app)
+                  example: https://physical-ai-robotics.vercel.app
+                collection_name:
+                  type: string
+                  description: Qdrant collection name (created if not exists)
+                  default: textbook_embeddings
+                  example: textbook_embeddings
+                chunk_size:
+                  type: integer
+                  description: Target tokens per chunk (must be within ±10%)
+                  default: 512
+                  minimum: 100
+                  maximum: 2000
+                  example: 512
+                chunk_overlap:
+                  type: integer
+                  description: Token overlap between chunks (10% of chunk_size recommended)
+                  default: 50
+                  minimum: 0
+                  maximum: 500
+                  example: 50
+                batch_size:
+                  type: integer
+                  description: Texts per Cohere API request (max 96)
+                  default: 96
+                  minimum: 1
+                  maximum: 96
+                  example: 96
+                max_retries:
+                  type: integer
+                  description: Max retry attempts on rate limits
+                  default: 3
+                  minimum: 1
+                  maximum: 10
+                  example: 3
+                clear_checkpoint:
+                  type: boolean
+                  description: Clear existing checkpoint (force fresh run)
+                  default: false
+                  example: false
+      responses:
+        "202":
+          description: Ingestion started (async operation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionStarted"
+        "400":
+          description: Invalid request (missing/invalid parameters)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized (missing API key)
+        "429":
+          description: Too many requests
+        "500":
+          description: Server error
+
+  /ingestion/{run_id}/status:
+    get:
+      summary: Get ingestion run status
+      description: Check progress of an ongoing ingestion run
+      operationId: getIngestionStatus
+      tags:
+        - Ingestion
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          description: ID of ingestion run (returned from POST /ingestion/run)
+          schema:
+            type: string
+            format: uuid
+            example: "2025-12-25T10:30:00Z"
+      responses:
+        "200":
+          description: Current status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionStatus"
+        "404":
+          description: Run not found
+        "500":
+          description: Server error
+
+  /ingestion/{run_id}/report:
+    get:
+      summary: Get final ingestion report
+      description: |
+        Retrieve final report after ingestion completes.
+
+        **Report contents**:
+        - Summary: URL count, chunk count, embedding/insertion stats
+        - Timings: Duration per stage
+        - Errors: List of failed chunks/URLs with details
+        - Verification: Vector count check, sample search results
+      operationId: getIngestionReport
+      tags:
+        - Ingestion
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Final report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionReport"
+        "404":
+          description: Run not found or not complete
+        "500":
+          description: Server error
+
+  /collections:
+    get:
+      summary: List all Qdrant collections
+      description: Get summary of all collections in Qdrant Cloud
+      operationId: listCollections
+      tags:
+        - Collections
+      responses:
+        "200":
+          description: List of collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collections:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CollectionInfo"
+
+  /collections/{collection_name}:
+    get:
+      summary: Get collection statistics
+      description: Get detailed stats for a specific collection
+      operationId: getCollectionStats
+      tags:
+        - Collections
+      parameters:
+        - name: collection_name
+          in: path
+          required: true
+          schema:
+            type: string
+            example: textbook_embeddings
+      responses:
+        "200":
+          description: Collection statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionStats"
+        "404":
+          description: Collection not found
+
+    delete:
+      summary: Delete a collection
+      description: Permanently delete a Qdrant collection (cannot be undone)
+      operationId: deleteCollection
+      tags:
+        - Collections
+      parameters:
+        - name: collection_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Collection deleted
+        "404":
+          description: Collection not found
+        "500":
+          description: Deletion failed
+
+  /search:
+    post:
+      summary: Vector similarity search
+      description: |
+        Search for similar chunks using vector embedding.
+
+        **Workflow**:
+        1. Accept query text (for future RAG chatbot)
+        2. Generate query embedding via Cohere
+        3. Search Qdrant for nearest neighbors
+        4. Return top-K results with metadata
+
+        **Note**: This endpoint is placeholder for Spec-2 (RAG Chatbot).
+      operationId: search
+      tags:
+        - Search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: Query text (will be embedded)
+                  example: What is forward kinematics?
+                collection_name:
+                  type: string
+                  description: Collection to search
+                  default: textbook_embeddings
+                limit:
+                  type: integer
+                  description: Number of results
+                  default: 5
+                  minimum: 1
+                  maximum: 100
+                  example: 5
+                filter:
+                  type: object
+                  description: Optional metadata filter
+                  properties:
+                    source_url:
+                      type: string
+                      description: Filter by source URL
+                    section_headers:
+                      type: array
+                      items:
+                        type: string
+                      description: Filter by section headers
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SearchResult"
+        "400":
+          description: Invalid query
+        "500":
+          description: Search failed
+
+components:
+  schemas:
+    IngestionStarted:
+      type: object
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          description: Unique ID for this run
+          example: "2025-12-25T10:30:00Z"
+        status:
+          type: string
+          enum: [running]
+          example: running
+        message:
+          type: string
+          example: Ingestion started. Check /status for progress.
+
+    IngestionStatus:
+      type: object
+      properties:
+        run_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [running, success, failed, partial]
+          example: running
+        progress:
+          type: object
+          properties:
+            urls_crawled:
+              type: integer
+              example: 12
+            chunks_created:
+              type: integer
+              example: 485
+            embeddings_generated:
+              type: integer
+              example: 480
+            points_inserted:
+              type: integer
+              example: 478
+            elapsed_seconds:
+              type: number
+              example: 125.3
+
+    IngestionReport:
+      type: object
+      properties:
+        run_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [success, partial, failed]
+          example: success
+        summary:
+          type: object
+          properties:
+            urls_crawled:
+              type: integer
+            urls_failed:
+              type: integer
+            total_chunks_created:
+              type: integer
+            total_embeddings_generated:
+              type: integer
+            total_points_inserted:
+              type: integer
+            insertion_success_rate:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              example: 0.998
+            deduplication_skipped:
+              type: integer
+              example: 2
+        timings:
+          type: object
+          properties:
+            total_duration_seconds:
+              type: number
+            crawling_seconds:
+              type: number
+            chunking_seconds:
+              type: number
+            embedding_seconds:
+              type: number
+            insertion_seconds:
+              type: number
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              stage:
+                type: string
+                enum: [crawling, chunking, embedding, insertion]
+              url:
+                type: string
+              chunk_id:
+                type: string
+              error:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+        verification:
+          type: object
+          properties:
+            vector_count:
+              type: integer
+            expected_count:
+              type: integer
+            count_match:
+              type: boolean
+            sample_queries:
+              type: array
+              items:
+                type: object
+                properties:
+                  query_chunk_id:
+                    type: string
+                  top_3_results:
+                    type: array
+                    maxItems: 3
+                    items:
+                      $ref: "#/components/schemas/SearchResult"
+
+    CollectionInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          example: textbook_embeddings
+        vectors_count:
+          type: integer
+          example: 1248
+        status:
+          type: string
+          example: green
+        vector_size:
+          type: integer
+          example: 1024
+
+    CollectionStats:
+      type: object
+      properties:
+        name:
+          type: string
+        points_count:
+          type: integer
+        indexed_vectors_count:
+          type: integer
+        status:
+          type: string
+        vector_size:
+          type: integer
+        distance_metric:
+          type: string
+          example: cosine
+        payload_schema:
+          type: object
+          properties:
+            source_url:
+              type: string
+              example: keyword
+            chunk_id:
+              type: string
+              example: keyword
+            section_headers:
+              type: string
+              example: keyword
+            timestamp:
+              type: string
+              example: datetime
+
+    SearchResult:
+      type: object
+      properties:
+        score:
+          type: number
+          format: float
+          description: Cosine similarity score (0-1)
+          example: 0.892
+        chunk_id:
+          type: string
+          example: a3c7e2b5f1e8d2c9a0b7c5f3e8a1d4b2
+        source_url:
+          type: string
+          example: https://textbook.vercel.app/module-1/chapter-2
+        page_title:
+          type: string
+          example: Introduction to Robot Kinematics
+        section_headers:
+          type: array
+          items:
+            type: string
+          example: ["Module 1", "Chapter 2", "Forward Kinematics"]
+        chunk_text:
+          type: string
+          description: First 500 characters of chunk
+          example: "Forward kinematics is the process of computing..."
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid base_url
+        details:
+          type: string
+          example: Must be valid HTTPS URL
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (future integration)
+
+security:
+  - ApiKeyAuth: []
+
+x-internal-notes: |
+  **Spec-1 Status**: CLI-only implementation
+  - No HTTP server yet
+  - All operations run locally via Python scripts
+  - Configuration via environment variables and .env file
+
+  **Spec-2 Planned**: FastAPI REST API
+  - Wrap CLI functions in FastAPI endpoints
+  - Add async/background task execution
+  - Integrate with RAG chatbot for query handling
+
+  **Future Enhancements**:
+  - Authentication (API keys)
+  - Rate limiting
+  - Webhook notifications on completion
+  - Batch API for multiple URLs
+  - Incremental updates with selective re-indexing

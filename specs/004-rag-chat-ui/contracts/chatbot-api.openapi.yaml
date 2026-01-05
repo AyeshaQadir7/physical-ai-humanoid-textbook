@@ -1,0 +1,373 @@
+openapi: 3.0.3
+info:
+  title: RAG Chatbot API
+  description: |
+    API contract for the RAG chatbot component (SPEC-4) communicating with the FastAPI
+    RAG Agent backend (SPEC-3). This defines the request/response structure for the /chat endpoint.
+  version: 1.0.0
+  contact:
+    name: Physical AI Robotics Textbook Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.robotics-textbook.example.com
+    description: Production server (example)
+
+paths:
+  /chat:
+    post:
+      summary: Query the RAG chatbot
+      description: |
+        Send a user question to the RAG Agent API. The API performs semantic search
+        on the textbook knowledge base, retrieves relevant chunks, and generates a
+        response grounded in those chunks. Responses include source citations.
+      operationId: queryChat
+      requestBody:
+        description: Query request to the chatbot
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              fullCollection:
+                summary: Full collection query
+                value:
+                  query: "What is ROS2?"
+                  retrieval_scope: "full_collection"
+                  top_k: 5
+              textOnly:
+                summary: Text-only mode (pre-provided context)
+                value:
+                  query: "Summarize this concept"
+                  retrieval_scope: "text_only"
+                  context_text: "ROS2 is a flexible middleware for robotics..."
+
+      responses:
+        '200':
+          description: Successful response from chatbot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                success:
+                  summary: Successful response
+                  value:
+                    query: "What is ROS2?"
+                    answer: "ROS2 is a flexible middleware for robotics applications, providing improved real-time performance and security compared to ROS1."
+                    retrieved_chunks:
+                      - chunk_id: "chunk_001"
+                        text: "ROS2 is a flexible middleware for robotics..."
+                        similarity_score: 0.94
+                        source_url: "https://robotics-textbook.example.com/module-1-ros2"
+                        page_title: "Introduction to ROS2"
+                        section_headers:
+                          - "Module 1: ROS2 Foundations"
+                          - "Chapter 1: Overview"
+                    execution_metrics:
+                      retrieval_time_ms: 245.3
+                      generation_time_ms: 2150.7
+                      total_time_ms: 2396.0
+                    retrieval_scope: "full_collection"
+                    status: "success"
+                    error: null
+
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyQuery:
+                  summary: Empty query
+                  value:
+                    status: "error"
+                    error:
+                      code: "VALIDATION_ERROR"
+                      message: "Query cannot be empty"
+
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                rateLimited:
+                  summary: Rate limited
+                  value:
+                    status: "error"
+                    error:
+                      code: "RATE_LIMITED"
+                      message: "Rate limited by generation service, please retry after a moment"
+
+        '503':
+          description: Service unavailable (backend timeout or API failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                timeout:
+                  summary: API timeout
+                  value:
+                    status: "error"
+                    error:
+                      code: "OPENAI_TIMEOUT"
+                      message: "Generation service timeout, please retry"
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Server error
+                  value:
+                    status: "error"
+                    error:
+                      code: "AGENT_FAILED"
+                      message: "Agent response generation failed"
+
+  /health:
+    get:
+      summary: Health check
+      description: Check if the RAG Agent API is accessible
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+
+        '503':
+          description: API is unavailable
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: The user's natural language question
+          example: "What is ROS2?"
+
+        retrieval_scope:
+          type: string
+          enum:
+            - "full_collection"
+            - "text_only"
+          default: "full_collection"
+          description: |
+            - "full_collection": Search entire textbook via Qdrant
+            - "text_only": Use only provided context_text (skip Qdrant)
+
+        top_k:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 5
+          description: Number of relevant chunks to retrieve
+
+        context_text:
+          type: string
+          nullable: true
+          maxLength: 50000
+          description: |
+            User-provided context for "text_only" mode.
+            Required if retrieval_scope="text_only"
+          example: "ROS2 is a flexible middleware for robotics..."
+
+    ChatResponse:
+      type: object
+      required:
+        - query
+        - status
+      properties:
+        query:
+          type: string
+          description: The original user query (echo)
+
+        answer:
+          type: string
+          nullable: true
+          description: The AI-generated response (null if error)
+          example: "ROS2 is a flexible middleware for robotics applications, providing improved real-time performance and security compared to ROS1."
+
+        retrieved_chunks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievedChunk'
+          description: Source passages used to generate the response
+
+        execution_metrics:
+          $ref: '#/components/schemas/ExecutionMetrics'
+          nullable: true
+          description: Performance metrics (null if error)
+
+        retrieval_scope:
+          type: string
+          enum:
+            - "full_collection"
+            - "text_only"
+          description: Which retrieval mode was used
+
+        status:
+          type: string
+          enum:
+            - "success"
+            - "error"
+          description: Request status
+
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+          nullable: true
+          description: Error details (only present if status="error")
+
+    RetrievedChunk:
+      type: object
+      required:
+        - chunk_id
+        - text
+        - similarity_score
+        - source_url
+        - page_title
+      properties:
+        chunk_id:
+          type: string
+          description: Unique identifier for this chunk
+          example: "chunk_001"
+
+        text:
+          type: string
+          description: The actual textbook passage
+          example: "ROS2 is a flexible middleware for robotics applications..."
+
+        similarity_score:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Semantic similarity to the query (0=unrelated, 1=perfect match)
+
+        source_url:
+          type: string
+          format: uri
+          description: URL to the page containing this chunk
+          example: "https://robotics-textbook.example.com/module-1-ros2/chapter-1-intro"
+
+        page_title:
+          type: string
+          description: Title of the page/chapter
+          example: "Introduction to ROS2"
+
+        section_headers:
+          type: array
+          items:
+            type: string
+          description: Breadcrumb path through the document hierarchy
+          example:
+            - "Module 1: ROS2 Foundations"
+            - "Chapter 1: Overview"
+            - "What is ROS2?"
+
+    ExecutionMetrics:
+      type: object
+      required:
+        - retrieval_time_ms
+        - generation_time_ms
+        - total_time_ms
+      properties:
+        retrieval_time_ms:
+          type: number
+          format: float
+          description: Time spent retrieving chunks from Qdrant
+          example: 245.3
+
+        generation_time_ms:
+          type: number
+          format: float
+          description: Time spent generating response via LLM
+          example: 2150.7
+
+        total_time_ms:
+          type: number
+          format: float
+          description: Total end-to-end time
+          example: 2396.0
+
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - error
+      properties:
+        query:
+          type: string
+          description: Original query (included in error responses)
+
+        answer:
+          type: null
+          description: Always null on error
+
+        retrieved_chunks:
+          type: array
+          default: []
+          description: Empty array on error
+
+        status:
+          type: string
+          enum:
+            - "error"
+
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+
+    ErrorDetail:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - "VALIDATION_ERROR"
+            - "RETRIEVAL_FAILED"
+            - "AGENT_FAILED"
+            - "OPENAI_TIMEOUT"
+            - "RATE_LIMITED"
+            - "GENERATION_FAILED"
+            - "OPENAI_UNAVAILABLE"
+          description: Error code for programmatic handling
+
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Query cannot be empty"
+
+  securitySchemes:
+    # No authentication for MVP
+    # Future: add OAuth2 or API key if needed
+
+tags:
+  - name: Chat
+    description: Chatbot query operations
+  - name: Health
+    description: System health checks

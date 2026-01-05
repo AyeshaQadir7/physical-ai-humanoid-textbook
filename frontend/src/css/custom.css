@@ -1,0 +1,110 @@
+/* Tailwind CSS directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* Physical AI & Robotics Color Palette */
+:root {
+  /* Primary colors - Teal accent */
+  --ifm-color-primary: #008080;
+  --ifm-color-primary-dark: #006666;
+  --ifm-color-primary-darker: #005555;
+  --ifm-color-primary-darkest: #004444;
+  --ifm-color-primary-light: #00a0a0;
+  --ifm-color-primary-lighter: #00b0b0;
+  --ifm-color-primary-lightest: #00c0c0;
+
+  /* Background colors */
+  --ifm-background-color: #0a0a0a;
+  --ifm-background-surface-primary: #1a1a1a;
+
+  /* Text colors */
+  --ifm-color-content: #ffffff;
+  --ifm-color-content-secondary: #f8f9fd;
+
+  /* Code styling */
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(34, 253, 255, 0.1);
+
+  /* Custom palette variables */
+  --color-deep-void: #0a0a0a;
+  --color-dark-surface: #1a1a1a;
+  --color-pure-white: #ffffff;
+  --color-light-gray: #f8f9fd;
+  --color-teal: #008080;
+  --color-cyan: #22fdff;
+  --color-cyan-glow: 0 0 20px rgba(34, 253, 255, 0.4);
+}
+
+/* Dark mode - enhanced for cyber-tech aesthetic */
+[data-theme="dark"] {
+  --ifm-color-primary: #22fdff;
+  --ifm-color-primary-dark: #00d9ff;
+  --ifm-color-primary-darker: #00c2e8;
+  --ifm-color-primary-darkest: #00a0bf;
+  --ifm-color-primary-light: #33ffff;
+  --ifm-color-primary-lighter: #44ffff;
+  --ifm-color-primary-lightest: #66ffff;
+
+  --ifm-background-color: #0a0a0a;
+  --ifm-background-surface-primary: #1a1a1a;
+
+  --ifm-color-content: #ffffff;
+  --ifm-color-content-secondary: #f8f9fd;
+
+  --docusaurus-highlighted-code-line-bg: rgba(34, 253, 255, 0.15);
+}
+
+/* Light mode - refined for readability */
+[data-theme="light"] {
+  --ifm-color-primary: #008080;
+  --ifm-color-primary-dark: #006666;
+  --ifm-color-primary-darker: #005555;
+  --ifm-color-primary-darkest: #004444;
+  --ifm-color-primary-light: #00a0a0;
+  --ifm-color-primary-lighter: #00b0b0;
+  --ifm-color-primary-lightest: #00c0c0;
+
+  --ifm-background-color: #ffffff;
+  --ifm-background-surface-primary: #f8f9fd;
+
+  --ifm-color-content: #0a0a0a;
+  --ifm-color-content-secondary: #333333;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 128, 128, 0.1);
+}
+
+/* Footer styling */
+footer {
+  background-color: #1a1a1a !important;
+}
+
+.footer {
+  background-color: #1a1a1a !important;
+}
+
+.footer__bottom {
+  background-color: #1a1a1a !important;
+}
+
+/* Smooth scrolling and animation preferences */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

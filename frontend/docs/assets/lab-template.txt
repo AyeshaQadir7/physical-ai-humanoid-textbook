@@ -1,0 +1,501 @@
+---
+id: module-X-lab-Y
+title: "Lab X.Y: [Lab Title]"
+sidebar_position: Y
+sidebar_label: "Lab: [Short Title]"
+description: "Hands-on lab: [brief description of what students do]"
+keywords: [hands-on, lab, practical, ROS 2, Gazebo, Isaac, VLA]
+---
+
+## Lab Overview
+
+This lab guides students through [**core objective**]. By completing this lab, you will:
+
+- **Achieve Objective 1**: [Specific, measurable]
+- **Achieve Objective 2**: [Specific, measurable]
+- **Achieve Objective 3**: [Specific, measurable]
+
+**Capstone Connection**: This lab produces [**reusable output for capstone**], which will be integrated in [capstone module/week].
+
+---
+
+## Prerequisites
+
+Before starting this lab, ensure you have:
+
+- ✅ Completed [Previous Chapter Name](../link-to-chapter.md)
+- ✅ Installed [Software/Library Name] version X.Y+
+- ✅ Familiarity with [Concept] (review if needed)
+- ✅ Access to [Hardware/Simulator] — simulator sufficient for this lab
+- ✅ IDE or text editor (VS Code, PyCharm, etc.)
+
+**Time Estimate**: [X minutes to complete; Y minutes for extension]
+
+**Difficulty Level**: ⭐ Beginner / ⭐⭐ Intermediate / ⭐⭐⭐ Advanced
+
+---
+
+## Setup Instructions
+
+Follow these steps **exactly** to prepare your environment:
+
+### Step 1: Create Project Directory
+
+```bash
+mkdir -p ~/ros2_ws/src/my_package
+cd ~/ros2_ws/src/my_package
+```
+
+### Step 2: Initialize Package
+
+```bash
+# Example for ROS 2 package
+ros2 pkg create my_package --build-type ament_python --dependencies rclpy sensor_msgs
+```
+
+### Step 3: Install Dependencies
+
+```bash
+# Navigate to workspace root
+cd ~/ros2_ws
+
+# Install all dependencies
+rosdep install --from-paths src --ignore-src -r -y
+
+# Install Python dependencies (if needed)
+pip install -r requirements.txt
+```
+
+### Step 4: Verify Installation
+
+```bash
+# Build the package
+colcon build
+
+# Source the setup script
+source install/setup.bash
+```
+
+**Verification**: You should see:
+```
+Starting >>> my_package
+Finished <<< my_package [X.Xs]
+```
+
+If you see errors, check the **Troubleshooting** section.
+
+---
+
+## Step-by-Step Tasks
+
+### Task 1: [Task Title]
+
+**Objective**: [What you're building or implementing]
+
+**Instructions**:
+
+1. Create a new file `src/my_node.py`:
+
+```python
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class MyNode(Node):
+    """Example node."""
+
+    def __init__(self):
+        super().__init__('my_node')
+        self.publisher = self.create_publisher(String, 'my_topic', 10)
+        self.timer = self.create_timer(1.0, self.publish_message)
+
+    def publish_message(self):
+        msg = String()
+        msg.data = f'Hello from my_node'
+        self.publisher.publish(msg)
+        self.get_logger().info(f'Published: {msg.data}')
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = MyNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+2. Make the file executable:
+
+```bash
+chmod +x src/my_node.py
+```
+
+3. Add entry point to `setup.py`:
+
+```python
+entry_points={
+    'console_scripts': [
+        'my_node = my_package.my_node:main',
+    ],
+},
+```
+
+4. Build the package:
+
+```bash
+cd ~/ros2_ws
+colcon build
+source install/setup.bash
+```
+
+**Verify Task 1**: Run the node and check output:
+
+```bash
+ros2 run my_package my_node
+```
+
+Expected output:
+```
+[INFO] [1702220400.123456789] [my_node]: Published: Hello from my_node
+[INFO] [1702220401.123456789] [my_node]: Published: Hello from my_node
+```
+
+---
+
+### Task 2: [Task Title]
+
+**Objective**: [What you're implementing]
+
+**Instructions**:
+
+1. Create `src/my_listener.py`:
+
+```python
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class ListenerNode(Node):
+    """Subscribe to topic and print messages."""
+
+    def __init__(self):
+        super().__init__('listener')
+        self.subscriber = self.create_subscription(
+            String,
+            'my_topic',
+            self.callback,
+            10
+        )
+
+    def callback(self, msg):
+        self.get_logger().info(f'Received: {msg.data}')
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = ListenerNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+2. Add entry point:
+
+```python
+'listener_node = my_package.my_listener:main',
+```
+
+3. Rebuild:
+
+```bash
+colcon build
+source install/setup.bash
+```
+
+**Verify Task 2**: In one terminal, run the publisher:
+
+```bash
+ros2 run my_package my_node
+```
+
+In another terminal, run the subscriber:
+
+```bash
+ros2 run my_package listener_node
+```
+
+Expected output (subscriber terminal):
+```
+[INFO] [1702220400.123456789] [listener]: Received: Hello from my_node
+[INFO] [1702220401.123456789] [listener]: Received: Hello from my_node
+```
+
+---
+
+### Task 3: [Task Title]
+
+**Objective**: [Final component or test]
+
+**Instructions**:
+
+[Step-by-step details]
+
+```bash
+# Example command
+command --flag
+```
+
+**Verify Task 3**: [How to verify success]
+
+---
+
+## Expected Output
+
+When all tasks are complete, running both nodes should produce:
+
+**Terminal 1 (Publisher)**:
+```
+[INFO] [1702220400.123456789] [my_node]: Published: Hello from my_node
+[INFO] [1702220401.123456789] [my_node]: Published: Hello from my_node
+[INFO] [1702220402.123456789] [my_node]: Published: Hello from my_node
+```
+
+**Terminal 2 (Subscriber)**:
+```
+[INFO] [1702220400.123456789] [listener]: Received: Hello from my_node
+[INFO] [1702220401.123456789] [listener]: Received: Hello from my_node
+[INFO] [1702220402.123456789] [listener]: Received: Hello from my_node
+```
+
+Both nodes should run indefinitely (Ctrl+C to stop).
+
+---
+
+## Verification Checklist
+
+Confirm you have completed the lab by checking all items:
+
+- [ ] **Setup**: Package created, dependencies installed, build succeeds
+- [ ] **Task 1**: Node runs and publishes messages without errors
+- [ ] **Task 2**: Subscriber receives all published messages
+- [ ] **Task 3**: [Specific verification criterion]
+- [ ] **Output Format**: Messages match expected format exactly
+- [ ] **Timing**: Messages publish/subscribe at expected frequency (1 Hz for example)
+- [ ] **No Errors**: No error messages in output (warnings OK)
+- [ ] **Reproducible**: Restarting nodes produces same results
+
+**Lab Complete**: ✅ All items checked
+
+---
+
+## Troubleshooting
+
+### Build Fails with "Package Not Found"
+
+**Symptom**:
+```
+Error: Could not find package 'my_package'
+```
+
+**Solution**:
+
+1. Verify package directory exists:
+   ```bash
+   ls -la ~/ros2_ws/src/my_package/
+   ```
+
+2. Ensure `package.xml` exists in the package directory
+
+3. Rebuild with verbose output:
+   ```bash
+   colcon build --packages-select my_package --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
+   ```
+
+4. Check CMakeLists.txt is correctly formatted
+
+---
+
+### Node Runs but No Messages Appear
+
+**Symptom**:
+```
+ros2 run my_package my_node
+# (No output)
+```
+
+**Solution**:
+
+1. Check if node is actually running:
+   ```bash
+   ros2 node list
+   # Should show '/my_node'
+   ```
+
+2. If node doesn't appear, check for import errors:
+   ```bash
+   python3 src/my_node.py
+   # This will show import errors if any
+   ```
+
+3. Ensure all imports are correct:
+   ```python
+   import rclpy
+   from rclpy.node import Node
+   from std_msgs.msg import String
+   ```
+
+4. Verify ROS 2 is sourced:
+   ```bash
+   echo $ROS_DISTRO
+   # Should show 'humble' or similar
+   ```
+
+---
+
+### Subscriber Doesn't Receive Messages
+
+**Symptom**:
+```
+# Publisher is running and logging messages
+# But subscriber shows nothing
+```
+
+**Solution**:
+
+1. Check topics are listed:
+   ```bash
+   ros2 topic list
+   # Should show '/my_topic'
+   ```
+
+2. Check topic data:
+   ```bash
+   ros2 topic echo /my_topic
+   # Should show published messages
+   ```
+
+3. Verify subscriber callback is correct:
+   - Topic name matches exactly (`'my_topic'` not `'/my_topic'`)
+   - Message type matches (both use `String`)
+   - Subscriber is created before publisher publishes
+
+4. Increase QoS depth if needed:
+   ```python
+   self.create_subscription(String, 'my_topic', self.callback, 10)
+   #                                                             ^^
+   #                                    Increase this value if messages missed
+   ```
+
+---
+
+:::warning
+**Common Mistake**: Forgetting to `source install/setup.bash` after building
+
+If you get "command not found" when running `ros2 run`, make sure to source the setup script in each terminal:
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Add this to your `~/.bashrc` to avoid repeating it:
+```bash
+echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
+```
+:::
+
+---
+
+## Extension Challenge (Optional)
+
+Once you've completed the core lab, try these enhancements:
+
+### Challenge 1: Add Logging & Timestamps
+
+Modify your nodes to log messages with timestamps:
+
+```python
+import datetime
+
+def publish_message(self):
+    timestamp = datetime.datetime.now().isoformat()
+    msg = String()
+    msg.data = f'[{timestamp}] Hello from my_node'
+    self.publisher.publish(msg)
+```
+
+### Challenge 2: Parameterize Topic Names
+
+Use ROS 2 parameters to make topic names configurable:
+
+```python
+def __init__(self):
+    super().__init__('my_node')
+
+    # Declare parameter
+    self.declare_parameter('topic_name', 'my_topic')
+    topic_name = self.get_parameter('topic_name').value
+
+    self.publisher = self.create_publisher(String, topic_name, 10)
+```
+
+Then run with:
+```bash
+ros2 run my_package my_node --ros-args -p topic_name:=custom_topic
+```
+
+### Challenge 3: Create a Launch File
+
+Create a launch file to run both nodes:
+
+```xml
+<!-- launch/my_launch.xml -->
+<launch>
+  <node pkg="my_package" exec="my_node">
+    <param name="topic_name" value="my_topic"/>
+  </node>
+
+  <node pkg="my_package" exec="listener_node">
+    <param name="topic_name" value="my_topic"/>
+  </node>
+</launch>
+```
+
+Run with:
+```bash
+ros2 launch my_package my_launch.xml
+```
+
+---
+
+## Summary
+
+**What You Learned**:
+- How to [key concept 1]
+- How to [key concept 2]
+- How to [key concept 3]
+
+**Key Code Patterns**:
+- Publishing with `create_publisher()` and `publish()`
+- Subscribing with `create_subscription()` and callbacks
+- Node initialization and spinning
+
+**Next Step**: [Bridge to next chapter/lab]
+
+---
+
+## Code Repository
+
+Complete lab code is available at:
+- [GitHub Repository](https://github.com/..../lab-X-Y) — Full source code
+- [Starter Template](https://github.com/.../template) — Scaffold to build on
+
+**Questions?**: Post in [discussion forum] or create a [GitHub Issue](https://github.com/...)
+
+---
+
+**Lab Created**: [DATE]
+**Last Updated**: [DATE]
+**Maintainer**: [NAME]

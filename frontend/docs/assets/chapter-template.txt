@@ -1,0 +1,225 @@
+---
+id: module-X-chapter-Y
+title: "Descriptive Chapter Title"
+sidebar_position: N
+sidebar_label: "Short Title"
+description: "One-sentence summary of chapter content"
+keywords: [keyword1, keyword2, keyword3]
+---
+
+## Introduction
+
+[Provide context for this chapter. Why does it matter? How does it connect to the broader course? What will the student accomplish?]
+
+**Capstone Connection**: [Explicitly state how this chapter contributes to the final capstone project.]
+
+## Learning Outcomes
+
+By the end of this chapter, students will be able to:
+
+- Learning outcome 1
+- Learning outcome 2
+- Learning outcome 3
+
+## Core Concepts
+
+### Concept 1: [Concept Name]
+
+[Explain the concept clearly. Assume the reader is encountering this for the first time. Include relevant theory, architecture, or principles.]
+
+#### Sub-concept 1.1
+
+[More detail if needed]
+
+#### Sub-concept 1.2
+
+[More detail if needed]
+
+### Concept 2: [Concept Name]
+
+[Explain the concept. Include diagrams or examples if helpful.]
+
+#### Sub-concept 2.1
+
+[More detail]
+
+## Examples
+
+### Example 1: [Description]
+
+[Explain what this example demonstrates.]
+
+```python
+# Python code example
+import module
+
+def function():
+    """Function description."""
+    pass
+```
+
+**Expected Output**:
+```
+output here
+```
+
+### Example 2: [Description]
+
+[Explain what this example demonstrates.]
+
+```bash
+# Bash/command-line example
+command --flag value
+```
+
+**Expected Output**:
+```
+output here
+```
+
+## Hands-On Lab: [Lab Name]
+
+:::note
+**Time Required**: X minutes (e.g., 30 minutes)
+**Difficulty**: Beginner / Intermediate / Advanced
+**Prerequisites**:
+- Previous chapter or concept A
+- Software/library X installed
+**Hardware**: Optional (simulator sufficient)
+:::
+
+### Lab Overview
+
+[2-3 sentence summary of what the lab covers and what students will accomplish.]
+
+### Setup Instructions
+
+Follow these steps to prepare your environment:
+
+1. [Step 1 with specific instructions]
+2. [Step 2 with specific instructions]
+3. [Step 3 with specific instructions]
+
+### Step-by-Step Tasks
+
+#### Task 1: [Task Title]
+
+[Description of what to do]
+
+```bash
+command or code here
+```
+
+Verify the output:
+```
+expected output
+```
+
+#### Task 2: [Task Title]
+
+[Description]
+
+```python
+code or command
+```
+
+Expected result:
+```
+output
+```
+
+#### Task 3: [Task Title]
+
+[Description]
+
+```bash
+command
+```
+
+### Expected Output
+
+When you complete all tasks, you should see:
+
+```
+Complete expected output here
+```
+
+### Verification Checklist
+
+Verify your lab was successful by checking:
+
+- [ ] [Condition 1 — e.g., "Node is running without errors"]
+- [ ] [Condition 2 — e.g., "Output matches expected format"]
+- [ ] [Condition 3 — e.g., "Topic is publishing at expected frequency"]
+- [ ] [Condition 4]
+
+### Troubleshooting
+
+**Issue**: [Error message or symptom]
+
+**Solution**: [Step-by-step fix]
+
+---
+
+**Issue**: [Error message or symptom]
+
+**Solution**: [Step-by-step fix]
+
+---
+
+:::warning
+**Common Mistake**: [What students often get wrong]
+
+**How to avoid it**: [Explanation of the correct approach]
+:::
+
+### Extension Challenge (Optional)
+
+Try these advanced variations to deepen your understanding:
+
+1. **Challenge 1**: [Description of a harder version or variation]
+2. **Challenge 2**: [Another extension]
+
+---
+
+## Summary & Next Steps
+
+[Summarize key takeaways. How do the concepts from this chapter feed into the capstone? What's coming next?]
+
+### Key Takeaways
+
+- Point 1
+- Point 2
+- Point 3
+
+### Glossary Links
+
+Review these terms used in this chapter:
+
+- [Term 1](../glossary.md#term-1)
+- [Term 2](../glossary.md#term-2)
+
+### Next Chapter
+
+Next, we'll explore [next topic]. This will [brief description of how it builds on this chapter].
+
+## Further Reading
+
+For deeper understanding, explore these resources:
+
+- **Official Docs**: [ROS 2 Documentation](https://docs.ros.org) — Comprehensive API reference
+- **Tutorial**: [How X Works](https://example.com) — Visual explanation
+- **Paper**: [Citation](link) — Research foundation
+- **Community**: [Stack Exchange](link) — Q&A for common questions
+
+## Code Repository
+
+Complete examples and lab starter code are available in:
+
+- [GitHub Repository](https://github.com/...) — Full code + setup scripts
+- [Code Snippets](#) — Inline examples from this chapter
+
+---
+
+**Last Updated**: [DATE]
+**Maintainer**: [Name/Email for corrections]

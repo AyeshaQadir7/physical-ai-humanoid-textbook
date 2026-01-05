@@ -1,0 +1,706 @@
+/**
+ * ChatBot Component Styles - Cyberpunk Design System
+ *
+ * Color Palette:
+ * - Background: #0a0a0a (Deep Void)
+ * - Secondary: #1a1a1a (Dark Surface)
+ * - Text Primary: #ffffff (Pure White)
+ * - Text Secondary: #F8F9FD (Light Gray)
+ * - Accent: #008080 (Teal)
+ * - Highlight: #22FDFF (Electric Cyan)
+ *
+ * Responsive design:
+ * - Desktop (>768px): Fixed right sidebar
+ * - Mobile (<768px): Full-width bottom sheet modal
+ */
+
+/* ============================================================================
+   MAIN CONTAINER
+   ============================================================================ */
+
+.chatbotContainer {
+  display: flex;
+  flex-direction: column;
+  height: 85%;
+  background: #f8f9fd;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(34, 253, 255, 0.15);
+  border: 1px solid #008080;
+  z-index: 999;
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.chatbotHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #008080 0%, #22fdff 100%);
+  color: #ffffff;
+  border-bottom: 1px solid rgba(34, 253, 255, 0.15);
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.closeButton:hover {
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(34, 253, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================================
+   MESSAGES CONTAINER
+   ============================================================================ */
+
+.messagesContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.messagesContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.messagesContainer::-webkit-scrollbar-track {
+  background: #02bebe56;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb {
+  background: #017070;
+  border-radius: 3px;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb:hover {
+  background: #019292;
+}
+
+/* ============================================================================
+   MESSAGE CONTENT
+   ============================================================================ */
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.userMessage {
+  align-self: flex-end;
+  max-width: 85%;
+  background: #01b9b9;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border-top-right-radius: 2px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ffffff;
+  /* box-shadow: 0 2px 8px rgba(0, 128, 128, 0.3); */
+  word-wrap: break-word;
+}
+
+.userMessage strong {
+  color: #f8f9fd;
+  /* color: #e0f8f8; */
+  font-weight: 600;
+}
+
+.assistantMessage {
+  align-self: flex-start;
+  max-width: 85%;
+  background: #e0f8f8;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border-top-left-radius: 2px;
+  /* border-left: 3px solid #ffffff; */
+  border: 1px solid #017070a6;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #017070;
+  box-shadow: 0 2px 8px rgba(34, 253, 255, 0.12);
+  word-wrap: break-word;
+}
+
+.assistantMessage strong {
+  color: #017070;
+  font-weight: 600;
+}
+
+.errorMessage {
+  background: rgba(255, 68, 68, 0.1);
+  border-left: 3px solid #ff4444;
+  border-right: 1px solid rgba(255, 68, 68, 0.3);
+  padding: 12px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #ff8888;
+}
+
+.noSourcesMessage {
+  background: #e0f8f8;
+  border: 1px solid #017070a6;
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #017070;
+  font-style: italic;
+}
+
+/* ============================================================================
+   SOURCES / CITATIONS
+   ============================================================================ */
+
+.sourcesContainer {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(34, 253, 255, 0.06);
+  border: 1px solid rgba(34, 253, 255, 0.2);
+  border-radius: 8px;
+  border-left: 3px solid #22fdff;
+}
+
+.sourcesTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #22fdff;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sourcesTitle::before {
+  content: "📚";
+  font-size: 14px;
+}
+
+.sourcesList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sourceChunk {
+  background: rgba(0, 128, 128, 0.08);
+  border: 1px solid rgba(34, 253, 255, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sourceChunk:hover {
+  background: rgba(34, 253, 255, 0.15);
+  border-color: rgba(34, 253, 255, 0.5);
+  box-shadow: 0 0 12px rgba(34, 253, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.chunkText {
+  margin-bottom: 10px;
+  color: #f8f9fd;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.chunkText strong {
+  color: #22fdff;
+  font-weight: 600;
+}
+
+.chunkMetadata {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(34, 253, 255, 0.15);
+}
+
+.relevanceScore {
+  font-size: 11px;
+  color: #b8f8ff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scoreValue {
+  font-weight: 700;
+  color: #22fdff;
+  background: rgba(34, 253, 255, 0.15);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.sourceLink {
+  color: #22fdff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(34, 253, 255, 0.08);
+}
+
+.sourceLink:hover {
+  color: #ffffff;
+  background: rgba(34, 253, 255, 0.2);
+  text-shadow: 0 0 8px rgba(34, 253, 255, 0.4);
+}
+
+.breadcrumb {
+  font-size: 11px;
+  color: #b8f8ff;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(34, 253, 255, 0.2);
+}
+
+/* ============================================================================
+   LOADING STATE
+   ============================================================================ */
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinnerCircle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(34, 253, 255, 0.2);
+  border-top-color: #017070;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  margin: 0;
+  font-size: 13px;
+  color: #017070;
+}
+
+/* ============================================================================
+   ERROR DISPLAY
+   ============================================================================ */
+
+.errorContainer {
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.4);
+  border-radius: 4px;
+  padding: 12px 14px;
+  margin: 12px 16px;
+}
+
+.errorContent {
+  color: #ff8888;
+  font-size: 13px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.errorActions {
+  display: flex;
+  gap: 8px;
+}
+
+.retryButton,
+.dismissButton {
+  background: transparent;
+  color: #ff8888;
+  border: 1px solid #ff8888;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retryButton:hover,
+.dismissButton:hover {
+  background: rgba(255, 68, 68, 0.15);
+  border-color: #ff4444;
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.3);
+}
+
+.retryButton:active,
+.dismissButton:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #017070;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+/* ============================================================================
+   INPUT FORM
+   ============================================================================ */
+
+.inputForm {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid #017070;
+  background: #e0f8f8;
+}
+
+.inputField {
+  flex: 1;
+  align-items: center;
+  padding: 5px 12px;
+  border: 1px solid #017070;
+  border-radius: 4px;
+  font-size: 16px;
+  resize: none;
+  transition: all 0.2s ease;
+  background: #e0f8f8;
+  color: #017070;
+}
+
+.inputField::placeholder {
+  color: #017070;
+  opacity: 0.6;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: #017070;
+  box-shadow: 0 0 8px rgba(34, 253, 255, 0.3),
+    inset 0 0 8px rgba(34, 253, 255, 0.05);
+}
+
+.inputField:disabled {
+  background: rgba(0, 0, 0, 0.5);
+  color: #b8f8ff;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.submitButton {
+  padding: 10px 18px;
+  background: #008080;
+  color: #ffffff;
+  border: 1px solid #017070;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #006464;
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  border-color: rgba(34, 253, 255, 0.2);
+  color: #adcfcf;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Desktop (>768px): Fixed sidebar */
+@media (min-width: 768px) {
+  .chatbotContainer {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    width: 384px; /* 96 * 4px Tailwind unit */
+    max-height: 600px;
+  }
+}
+
+/* Tablet (481-768px): Slightly adjusted */
+@media (max-width: 768px) {
+  .chatbotContainer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 75vh;
+    border-radius: 16px 16px 0 0;
+    animation: slideUpModal 0.3s ease-out;
+  }
+
+  @keyframes slideUpModal {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Mobile (<481px): Full width adjustment */
+@media (max-width: 480px) {
+  .chatbotHeader {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .headerTitle {
+    font-size: 16px;
+  }
+
+  .messagesContainer {
+    padding: 12px;
+  }
+
+  .inputForm {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .inputField {
+    font-size: 14px;
+  }
+
+  .sourceChunk {
+    font-size: 11px;
+  }
+}
+
+/* ============================================================================
+   DARK MODE SUPPORT (Already integrated into base design)
+   ============================================================================ */
+
+:root[data-theme="dark"] .chatbotContainer {
+  background: #0a0a0a;
+  border: 1px solid rgba(34, 253, 255, 0.2);
+  box-shadow: 0 0 20px rgba(34, 253, 255, 0.15);
+}
+
+:root[data-theme="dark"] .userMessage {
+  background: #00a0a0;
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .assistantMessage {
+  background: rgba(34, 251, 255, 0.164);
+  color: #f8f9fd;
+}
+:root[data-theme="dark"] .noSourcesMessage {
+  background: rgba(34, 251, 255, 0.164);
+  color: #f8f9fd;
+}
+:root[data-theme="dark"] .assistantMessage strong {
+  color: #00a8a8;
+}
+
+:root[data-theme="dark"] .spinnerCircle {
+  border-top-color: #00a0a0;
+}
+
+:root[data-theme="dark"] .loadingText {
+  color: #00a0a0;
+}
+
+:root[data-theme="dark"] .inputForm {
+  background: #1a1a1a;
+  border-top-color: rgba(34, 253, 255, 0.15);
+}
+
+:root[data-theme="dark"] .inputField {
+  background: #0a0a0a;
+  color: #ffffff;
+  border-color: rgba(34, 253, 255, 0.3);
+}
+
+:root[data-theme="dark"] .messagesContainer {
+  background: #0a0a0a;
+}
+
+/* ============================================================================
+   TEXT SELECTION MENU (P2 Feature)
+   ============================================================================ */
+
+.textSelectionMenu {
+  z-index: 10000;
+  background: #1a1a1a;
+  border: 1px solid rgba(34, 253, 255, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(34, 253, 255, 0.25);
+  padding: 8px;
+  max-width: 300px;
+  animation: slideUpMenu 0.2s ease-out;
+}
+
+.textSelectionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 253, 255, 0.2),
+    rgba(0, 128, 128, 0.2)
+  );
+  color: #22fdff;
+  border: 1px solid rgba(34, 253, 255, 0.4);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.textSelectionButton:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 253, 255, 0.35),
+    rgba(0, 128, 128, 0.3)
+  );
+  border-color: #22fdff;
+  box-shadow: 0 0 12px rgba(34, 253, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.textSelectionButton:active {
+  transform: translateY(0);
+}
+
+.buttonIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.buttonText {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.buttonText em {
+  font-style: italic;
+  opacity: 0.8;
+  max-width: 200px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:root[data-theme="dark"] .textSelectionMenu {
+  background: #1a1a1a;
+  border-color: rgba(34, 253, 255, 0.3);
+}
+
+:root[data-theme="dark"] .textSelectionButton {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 253, 255, 0.2),
+    rgba(0, 128, 128, 0.2)
+  );
+  color: #22fdff;
+  border-color: rgba(34, 253, 255, 0.4);
+}
+
+@keyframes slideUpMenu {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
