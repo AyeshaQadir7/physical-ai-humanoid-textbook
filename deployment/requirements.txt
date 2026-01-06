@@ -1,0 +1,15 @@
+requests
+beautifulsoup4
+langchain-text-splitters
+tiktoken
+cohere
+qdrant-client
+python-dotenv
+pytest
+pydantic
+pytest-cov
+pytest-mock
+openai
+openai-agents
+fastapi
+uvicorn[standard]
